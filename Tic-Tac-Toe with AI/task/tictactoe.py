@@ -5,7 +5,8 @@ class TicTacToe:
     def __init__(self):
         self.board = {(x, y): ' ' for x in range(1, 4) for y in range(1, 4)}
         self.status = 'Game not finished'
-        self.current_move = 'user'
+        self.current_move = ''
+        self.players = []
 
     def show_board(self):
         print("---------")
@@ -106,23 +107,51 @@ class TicTacToe:
         print('Making move level "easy"')
         return random.choice(move_list)
 
+    def switch_player(self):
+        if self.current_move == self.players[0]:
+            self.current_move = self.players[1]
+        else:
+            self.current_move = self.players[0]
+
     def make_move(self):
         if self.current_move == 'user':
-            self.current_move = 'computer'
             return self.get_coordinates()
         else:
-            self.current_move = 'user'
             return self.random_move()
 
     def game(self):
         self.show_board()
         while self.status == 'Game not finished':
             self.board[self.make_move()] = self.choose_turn()
+            self.switch_player()
             self.status = self.results()
             self.show_board()
         print(self.status)
+        self.status = 'Game not finished'
+        self.board = {(x, y): ' ' for x in range(1, 4) for y in range(1, 4)}
+
+    def get_command(self):
+        self.players = []
+        while True:
+            try:
+                raw_input = input('Input command: ')
+                if raw_input == 'exit':
+                    return raw_input
+                command, player_one, player_two = raw_input.split()
+                assert command == 'start'
+                self.players = [player_one, player_two]
+                self.current_move = player_one
+                return command
+            except (AssertionError, ValueError):
+                print('Bad parameters!')
+
+    def menu(self):
+        command = self.get_command()
+        while command != 'exit':
+            self.game()
+            command = self.get_command()
 
 
 if __name__ == "__main__":
     tic_tac_toe = TicTacToe()
-    tic_tac_toe.game()
+    tic_tac_toe.menu()
